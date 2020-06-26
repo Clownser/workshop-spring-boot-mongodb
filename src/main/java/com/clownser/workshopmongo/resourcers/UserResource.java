@@ -18,38 +18,45 @@ import com.clownser.workshopmongo.dto.UserDTO;
 import com.clownser.workshopmongo.services.UserService;
 
 @RestController
-@RequestMapping(value ="/users")
+@RequestMapping(value = "/users")
 public class UserResource {
-	
+
 	@Autowired
 	private UserService service;
-	
-	@RequestMapping(method =RequestMethod.GET)
-	public ResponseEntity<List<UserDTO>> findAll(){
+
+	@RequestMapping(method = RequestMethod.GET)
+	public ResponseEntity<List<UserDTO>> findAll() {
 		List<User> list = service.findAll();
-		List<UserDTO> listDTO = list.stream().map(x -> new UserDTO(x)).
-				collect(Collectors.toList());
-		
+		List<UserDTO> listDTO = list.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+
 		return ResponseEntity.ok().body(listDTO);
 	}
-	
-	@RequestMapping(value = "/{id}", method =RequestMethod.GET)
-	public ResponseEntity<UserDTO> finById(@PathVariable String id){
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	public ResponseEntity<UserDTO> finById(@PathVariable String id) {
 		User obj = service.findbyId(id);
 		return ResponseEntity.ok().body(new UserDTO(obj));
 	}
-	
-	@RequestMapping( method =RequestMethod.POST)
-	public ResponseEntity<Void> insert(@RequestBody UserDTO objDto){
+
+	@RequestMapping(method = RequestMethod.POST)
+	public ResponseEntity<Void> insert(@RequestBody UserDTO objDto) {
 		User obj = service.formDTO(objDto);
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}
-	
-	@RequestMapping(value = "/{id}", method =RequestMethod.DELETE)
-	public ResponseEntity<Void> delete(@PathVariable String id){
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<Void> delete(@PathVariable String id) {
 		service.findbyId(id);
+		return ResponseEntity.noContent().build();
+	}
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+	public ResponseEntity<Void> update(@RequestBody UserDTO objDto, @PathVariable String id) {
+		User obj = service.formDTO(objDto);
+		obj.setId(id);
+		obj = service.update(obj);
 		return ResponseEntity.noContent().build();
 	}
 }
